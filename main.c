@@ -1,7 +1,15 @@
-#include "./src/battle_mode.h"
+#include "./src/core.h"
 
 int main() {
-    init();
+    int result = init();
+
+    if (result) {
+        fprintf(stderr, "%s: %s: Init failed: %s\n", __FILE__, __FUNCTION__, error_mailer(result));
+    }
+
+    prettybar((const char *[]){"NEW GAME", "CONTINUE", "QUIT"});
+    getchar();
+
     deinit();
 
     return 0;

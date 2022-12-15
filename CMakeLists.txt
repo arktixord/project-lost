@@ -8,9 +8,14 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
 endif()
 
 FILE(GLOB_RECURSE PDCURSES_SRC ${libs_pdcurses}/*.c ${CMAKE_CURRENT_SOURCE_DIR}/libs/pdcurses/pdcurses/*.c)
+FILE(GLOB_RECURSE LOG_SRC ${CMAKE_CURRENT_SOURCE_DIR}/libs/logging/*.c)
 
-add_executable(project_lost main.c ${PDCURSES_SRC} src/battle_mode.c src/battle_mode.h)
+add_executable(project_lost main.c ${PDCURSES_SRC} src/battle_mode.c src/battle_mode.h src/core.c src/core.h src/menu.c src/menu.h)
+#add_compile_options(-DDEBUG)
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/libs/pdcurses)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/libs/logging/src)
 add_library(pdcurses STATIC ${PDCURSES_SRC})
-target_link_libraries(project_lost pdcurses)
+add_library(log STATIC ${LOG_SRC})
+
+target_link_libraries(project_lost log pdcurses)
