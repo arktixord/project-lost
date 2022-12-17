@@ -13,8 +13,19 @@
     enum BOOL {FALSE, TRUE};
 #endif
 
-enum MIN_TERM_SIZE {MIN_TERM_Y = 36, MIN_TERM_X = 64, MIN_TERM_AREA = MIN_TERM_Y * MIN_TERM_X};
-enum ERRORS {EOK, EFILE, ELOGFP, ESMALLTERM, ECRTBORDER, EUNKERR};
+enum MIN_TERM_SIZE {
+    MIN_TERM_Y = 36,
+    MIN_TERM_X = 64,
+    MIN_TERM_AREA = MIN_TERM_Y * MIN_TERM_X
+};
+
+enum ERRORS {
+    EOK,
+    EFILE,
+    ELOGFP,
+    ESMALLTERM,
+    EUNKERR
+};
 
 int init();
 void deinit();

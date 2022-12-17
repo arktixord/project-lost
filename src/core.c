@@ -7,7 +7,6 @@ const char *ERR_MSG[] = {
         "Error with file",
         "Error adding .log file",
         "Too small terminal",
-        "Border create failed",
         "Unknown error"
 };
 
@@ -26,17 +25,17 @@ int init() {
     if (win_term_columns < MIN_TERM_X || win_term_rows < MIN_TERM_Y
             || win_term_columns * win_term_rows < MIN_TERM_AREA) {
 
-        log_fatal("Terminal size: TOO SMALL");
+        log_fatal("Treminal size is too small.");
         return ESMALLTERM;
     }
-    log_info("Terminal size: OK");
+    log_info("Terminal size is OK");
 
     // Working with Curses
     log_info("Curses init started...");
     initscr();
     noecho();
     cbreak();
-    log_info("Curses initialized.");
+    log_info("Curses init ended.");
 
     return EOK;
 }
