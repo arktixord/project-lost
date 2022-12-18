@@ -13,6 +13,7 @@
     enum BOOL {FALSE, TRUE};
 #endif
 
+
 enum MIN_TERM_SIZE {
     MIN_TERM_Y = 36,
     MIN_TERM_X = 64,

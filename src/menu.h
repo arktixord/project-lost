@@ -4,8 +4,6 @@
 #include "core.h"
 
 int prettybar(const char *btns_names[]);
-int techbar(const char *btns_names, int btns_cnt);
-
-int * prettybtn(const char *btn_name);
+int techbar(const char *btns_names[]);
 
 #endif
