@@ -6,7 +6,7 @@ int main() {
         fprintf(stderr, "%s: %s: Init failed: %s\n", __FILE__, __FUNCTION__, error_mailer(result));
     }
 
-    prettybar((const char *[]){"NEW GAME", "CONTINUE", "QUIT"});
+    prtybar(4, (const char *[]) {"NEW GAME", "CONTINUE", "SETTINGS", "QUIT"});
     getchar();
 
     deinit();

@@ -7,6 +7,7 @@ const char *ERR_MSG[] = {
         "Error with file",
         "Error adding .log file",
         "Too small terminal",
+        "Bad sequence number of the button being created",
         "Unknown error"
 };
 

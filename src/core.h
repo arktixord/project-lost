@@ -25,6 +25,7 @@ enum ERRORS {
     EFILE,
     ELOGFP,
     ESMALLTERM,
+    EBTNNMBR,
     EUNKERR
 };
 
