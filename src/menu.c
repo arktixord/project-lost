@@ -2,12 +2,12 @@
 #include "core.h"
 #include <stdio.h>
 
-const char *SAVE_FILE_NAME = "../logos/SAVE/SAVE.logo";
-const char *QUIT_FILE_NAME = "../logos/QUIT/QUIT.logo";
-const char *TITLE_FILE_NAME = "../logos/LOST/LOST.logo";
-const char *PAUSE_FILE_NAME = "../logos/PAUSE/PAUSE.logo";
-const char *NEWGAME_FILE_NAME = "../logos/NEWGAME/NEWGAME.logo";
-const char *CONTINUE_FILE_NAME = "../logos/CONTINUE/CONTINUE.logo";
+const char *SAVE_FILE_NAME = "../logos/SAVE.logo";
+const char *QUIT_FILE_NAME = "../logos/QUIT.logo";
+const char *TITLE_FILE_NAME = "../logos/LOST.logo";
+const char *PAUSE_FILE_NAME = "../logos/PAUSE.logo";
+const char *NEWGAME_FILE_NAME = "../logos/NEWGAME.logo";
+const char *CONTINUE_FILE_NAME = "../logos/CONTINUE.logo";
 
 enum MENUSIZE {
     MENU_SIZE_Y = MIN_TERM_Y,
@@ -15,11 +15,6 @@ enum MENUSIZE {
     BORDER = 1
 };
 
-// TODO: Make text of the button size non constant. It will depend on img from file size.
-enum BTNSIZE {
-    TXT_SIZE_Y = 4,
-    TXT_SIZE_X =
-};
 
 int prtybar(int btns_number, const char *btns_names[]) {
     log_info("%s function started...", __PRETTY_FUNCTION__ );
@@ -67,12 +62,11 @@ int prtybar(int btns_number, const char *btns_names[]) {
             }
         }
 
-        log_trace("LINES COUNT: %d COLUMNS COUNT: %d POS COUNT: %d.", lines, columns, pos);
         if (pos) {
             title_text[lines++][pos] = '\0';
             columns = pos;
 
-            log_trace("NO NEW LINE IN THE END DETECTED. LINES COUNT: %d COLUMNS COUNT: %d POS COUNT: %d.", lines, columns, pos);
+            log_trace("No empty line at the end of file detected.");
         }
 
         text_size_y = lines;
@@ -108,31 +102,17 @@ int prtybar(int btns_number, const char *btns_names[]) {
     }
 
     // Generating buttons
-    int btn_info[4] = {};
     int menu_size[2] = {MENU_SIZE_Y, MENU_SIZE_X};
 
-    // TODO: Log memory work
+    log_trace("Memory allocating for array of buttons started...");
+    // It's okay to use sizeof in this case. We can say that this is a kind of automatic array data type detector!
     WINDOW **btns = calloc(btns_number, sizeof(btns[0]));
+    log_trace("Memory allocating for array of buttons ended.");
 
+    // Generating buttons array
     for (int i = 0; i < btns_number; i++) {
         prtybtn(btns_names[i], &btns[i], menu_container, menu_size, i, btns_number);
     }
-
-//    prtybtn(btns_names[0], btn_info, menu_size, 1, btns_number);
-//    WINDOW *btn0 = derwin(menu_container, btn_info[2], btn_info[3], btn_info[0], btn_info[1]);
-//    box(btn0, 0, 0);
-//
-//    prtybtn(btns_names[1], btn_info, menu_size, 2, btns_number);
-//    WINDOW *btn1 = derwin(menu_container, btn_info[2], btn_info[3], btn_info[0], btn_info[1]);
-//    box(btn1, 0, 0);
-//
-//    prtybtn(btns_names[2], btn_info, menu_size, 3, btns_number);
-//    WINDOW *btn2 = derwin(menu_container, btn_info[2], btn_info[3], btn_info[0], btn_info[1]);
-//    box(btn2, 0, 0);
-//
-//    prtybtn(btns_names[3], btn_info, menu_size, 4, btns_number);
-//    WINDOW *btn3 = derwin(menu_container, btn_info[2], btn_info[3], btn_info[0], btn_info[1]);
-//    box(btn3, 0, 0);
 
     int refresh_status = refresh();
     log_trace("Terminal window refreshing status: %s.", ((refresh_status) ? ("FAIL") : ("SUCSESS")));
@@ -157,12 +137,27 @@ int prtybar(int btns_number, const char *btns_names[]) {
 //
 //    input_end:
 
-    // TODO: Log memory work
+    log_trace("Memory cleaning for array of buttons started...");
     free(btns);
+    log_trace("Memory cleaning for array of buttons ended.");
+
     log_info("%s function ended.", __PRETTY_FUNCTION__);
 
     return EOK;
 }
+
+
+enum BTNINFO {
+    BTN_SIZE_Y,
+    BTN_SIZE_X,
+    BTN_OFFSET_Y,
+    BTN_OFFSET_X
+};
+
+enum PRNTSIZE {
+    PRNT_SIZE_Y,
+    PRNT_SIZE_X
+};
 
 int prtybtn(const char *btn_name, WINDOW **btn, WINDOW *prnt,
             const int prnt_size[2], int btn_number, int max_btn_number) {
@@ -178,22 +173,27 @@ int prtybtn(const char *btn_name, WINDOW **btn, WINDOW *prnt,
 
     int btn_info[4] = {};
 
+
     // Generating button sizes
-    btn_info[2] = 1 + BORDER * 2;
+    btn_info[BTN_SIZE_Y] = 1 + BORDER * 2;
 
     // It's OK to use strlen, because we will not create a button
     // with text that goes beyond the size of the int type
-    btn_info[3] = (int)strlen(btn_name) + BORDER * 4;
-    log_info("Size of the button being created is generated: %dx%d.", btn_info[3], btn_info[2]);
+    btn_info[BTN_SIZE_X] = (int)strlen(btn_name) + BORDER * 4;
+    log_info("Size of the button being created is generated: %dx%d.",
+             btn_info[BTN_SIZE_X], btn_info[BTN_SIZE_Y]);
 
 
     // Generating button offsets
-    btn_info[0] = prnt_size[0] - (max_btn_number - btn_number) * (BORDER + btn_info[2]);
-    btn_info[1] = (prnt_size[1] - btn_info[3]) / 2;
-    log_info("Offset of the button being created are generated: %dx%d.", btn_info[1], btn_info[0]);
+    btn_info[BTN_OFFSET_Y] = prnt_size[PRNT_SIZE_Y] - (max_btn_number - btn_number) * (BORDER + btn_info[BTN_SIZE_Y]);
+    btn_info[BTN_OFFSET_X] = (prnt_size[PRNT_SIZE_X] - btn_info[BTN_SIZE_X]) / 2;
+    log_info("Offset of the button being created are generated: %dx%d.",
+             btn_info[BTN_OFFSET_X], btn_info[BTN_OFFSET_Y]);
 
 
-    *btn = derwin(prnt, btn_info[2], btn_info[3], btn_info[0], btn_info[1]);
+    // Generating button
+    *btn = derwin(prnt, btn_info[BTN_SIZE_Y], btn_info[BTN_SIZE_X],
+                  btn_info[BTN_OFFSET_Y], btn_info[BTN_OFFSET_X]);
     box(*btn, 0, 0);
 
     log_trace("%s function ended...",  __PRETTY_FUNCTION__ );

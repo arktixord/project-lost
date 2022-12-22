@@ -11,6 +11,7 @@ const char *ERR_MSG[] = {
         "Unknown error"
 };
 
+
 int init() {
     // Working with LOGs
     loginit();
