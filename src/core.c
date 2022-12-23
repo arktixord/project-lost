@@ -3,12 +3,12 @@
 static const char * LOG_FILE_NAME = "project_lost.log";
 
 const char *ERR_MSG[] = {
-        "No errors",
-        "Error with file",
-        "Error adding .log file",
-        "Too small terminal",
-        "Bad sequence number of the button being created",
-        "Unknown error"
+        "No errors.",
+        "Error with file working.",
+        "Error adding .log file.",
+        "Too small terminal.",
+        "Bad sequence number of the button being created.",
+        "Unknown error."
 };
 
 

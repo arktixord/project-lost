@@ -6,8 +6,10 @@ const char *SAVE_FILE_NAME = "../logos/SAVE.logo";
 const char *QUIT_FILE_NAME = "../logos/QUIT.logo";
 const char *TITLE_FILE_NAME = "../logos/LOST.logo";
 const char *PAUSE_FILE_NAME = "../logos/PAUSE.logo";
+const char *ERROR_FILE_NAME = "../logos/ERROR.logo";
 const char *NEWGAME_FILE_NAME = "../logos/NEWGAME.logo";
 const char *CONTINUE_FILE_NAME = "../logos/CONTINUE.logo";
+const char *SETTINGS_FILE_NAME = "../logos/SETTINGS.logo";
 
 enum MENUSIZE {
     MENU_SIZE_Y = MIN_TERM_Y,
@@ -15,104 +17,93 @@ enum MENUSIZE {
     BORDER = 1
 };
 
+enum TTLINFO {
+    TTL_SIZE_Y,
+    TTL_SIZE_X,
+    TTL_OFFSET_Y,
+    TTL_OFFSET_X
+};
 
-int prtybar(int btns_number, const char *btns_names[]) {
+enum TXTSIZE {
+    TXT_SIZE_Y,
+    TXT_SIZE_X
+};
+
+int prtymenu(int btns_number, const char *btns_names[]) {
     log_info("%s function started...", __PRETTY_FUNCTION__ );
 
-    // Detecting terminal screen size
+    /* Detecting terminal screen size */
     int term_y = LINES;
     int term_x = COLS;
     log_info("Terminal size detected: %dx%d.", term_x, term_y);
 
-    // Generating menu offsets
+    /* GENERATING MENU SPACE STARTED */
+    /* Generating menu offsets */
     // This way the menu will not be stretched over the entire terminal screen
     int menu_offset_y = (term_y - MENU_SIZE_Y) / 2;
     int menu_offset_x = (term_x - MENU_SIZE_X) / 2;
     log_info("Menu offsets generated: %dx%d.", menu_offset_x, menu_offset_y);
 
-    // Generating container for all menu elements
+    /* Generating container for all menu elements */
     WINDOW *menu_container = derwin(stdscr, MENU_SIZE_Y, MENU_SIZE_X, menu_offset_y, menu_offset_x);
     log_trace("Container for menu creating status: %s.", ((menu_container) ? ("SUCSESS") : ("FAIL")));
     wbkgd(menu_container, ' ');
     box(menu_container, 0, 0);
+    /* GENERATING MENU SPACE ENDED */
 
-    // Generating title size
-    char title_text[PATH_MAX][PATH_MAX] = {};
-    int text_size_y = 0;
-    int text_size_x = 0;
+
+    /* GENERATING TITLE STARTED */
+    /* Generating title size */
+    int ttl_info[4] = {};
+    int ttl_txt_size[2] = {};
+    char ttl_txt[PATH_MAX][PATH_MAX] = {};
 
     FILE *fp = fopen(TITLE_FILE_NAME, "r");
-    if (fp == NULL) {
-        log_warn("LOGO file openning status: FAIL.");
-    } else {
-        log_trace("LOGO file openning status: SUCCESS.");
+    txtdtct(fp, ttl_txt_size, ttl_txt);
+    int close_status = fclose(fp);
+    log_trace("Title file closing status: %s.", ((close_status) ? ("FAIL") : ("SUCCESS")));
 
-        int columns = 0;
-        int lines = 0;
-        int pos = 0;
-        char ch;
-
-        while ((ch = (char)fgetc(fp)) != EOF) {
-            if (ch == '\n') {
-                title_text[lines++][pos] = '\0';
-                columns = pos;
-                pos = 0;
-            } else {
-                title_text[lines][pos++] = (char)ch;
-            }
-        }
-
-        if (pos) {
-            title_text[lines++][pos] = '\0';
-            columns = pos;
-
-            log_trace("No empty line at the end of file detected.");
-        }
-
-        text_size_y = lines;
-        text_size_x = columns;
-        int close_status = fclose(fp);
-        log_info("An array with the name has been formed: %dx%d.", text_size_x, text_size_y);
-        log_trace("LOGO file closing status: %s.", ((close_status) ? ("FAIL") : ("SUCCESS")));
-    }
-
-    // Generating title offsets
+    /* Generating title offsets */
     // It should be at the top in the center of the menu
-    int title_offset_y = 1;
-    int title_offset_x = (MENU_SIZE_X - text_size_x) / 2;
-    log_info("Title offsets generated: %dx%d.", title_offset_x, title_offset_y);
+    ttl_info[TTL_OFFSET_Y] = 1;
+    ttl_info[TTL_OFFSET_X] = (MENU_SIZE_X - ttl_txt_size[TXT_SIZE_X]) / 2;
+    log_info("Title offsets generated: %dx%d.", ttl_info[TTL_OFFSET_X], ttl_info[TTL_OFFSET_Y]);
 
-    // Generating title
-    if (!text_size_y || !text_size_x) {
-        log_warn("Text from file did not detected.");
-    } else {
-        WINDOW *title = derwin(menu_container,
-                               text_size_y + BORDER * 2, text_size_x + BORDER * 2,
-                               title_offset_y, title_offset_x);
-        log_trace("Title creating status: %s.", ((title) ? ("SUCCESS") : ("FAIL")));
-        box(title, 0, 0);
+    /* Generating title sizes */
+    ttl_info[TTL_SIZE_Y] = ttl_txt_size[TXT_SIZE_Y] + BORDER * 2;
+    ttl_info[TTL_SIZE_X] = ttl_txt_size[TXT_SIZE_X] + BORDER * 2;
 
-        // Inserting title text
-        log_trace("LOGO printing started...");
-        for (int cur_line = 0; cur_line < text_size_y; cur_line++) {
-            mvwprintw(title, BORDER + cur_line, 1, "%s", title_text[cur_line]);
-        }
+    /* Generating title window */
+    WINDOW *title = derwin(menu_container,
+                           ttl_info[TTL_SIZE_Y], ttl_info[TTL_SIZE_X],
+                           ttl_info[TTL_OFFSET_Y], ttl_info[TTL_OFFSET_X]);
+    log_trace("Title creating status: %s.", ((title) ? ("SUCCESS") : ("FAIL")));
+    box(title, 0, 0);
 
-        log_trace("LOGO printing ended.");
+    /* Inserting title text */
+    log_trace("LOGO printing started...");
+    for (int cur_line = 0; cur_line < ttl_txt_size[TXT_SIZE_Y]; cur_line++) {
+        mvwprintw(title, BORDER + cur_line, 1, "%s", ttl_txt[cur_line]);
     }
+    log_trace("LOGO printing ended.");
+    /* GENERATING TITLE ENDED */
 
-    // Generating buttons
+
+    /* GENERATING BUTTONS STARTED */
     int menu_size[2] = {MENU_SIZE_Y, MENU_SIZE_X};
 
+    /* Generating buttons array */
     log_trace("Memory allocating for array of buttons started...");
-    // It's okay to use sizeof in this case. We can say that this is a kind of automatic array data type detector!
-    WINDOW **btns = calloc(btns_number, sizeof(btns[0]));
+    WINDOW **btns = calloc(btns_number, sizeof(btns[0])); // It's okay to use sizeof in this case.
+                                                          // This is a kind of automatic array data type detector!
     log_trace("Memory allocating for array of buttons ended.");
 
-    // Generating buttons array
+    /* Printing buttons array */
     for (int i = 0; i < btns_number; i++) {
         prtybtn(btns_names[i], &btns[i], menu_container, menu_size, i, btns_number);
     }
+    /* GENERATING BUTTONS ENDED */
+
 
     int refresh_status = refresh();
     log_trace("Terminal window refreshing status: %s.", ((refresh_status) ? ("FAIL") : ("SUCSESS")));
@@ -164,39 +155,111 @@ int prtybtn(const char *btn_name, WINDOW **btn, WINDOW *prnt,
 
     log_trace("%s function started...", __PRETTY_FUNCTION__ );
 
-    if (btn_number < 0 || btn_number > (max_btn_number - 1)) {
+    /* Validating button current number */
+    if (btn_number < 0 || max_btn_number < 1 || btn_number > (max_btn_number - 1)) {
         log_fatal("Sequence number of current button is invalid."
                   " It is %d, maximum is %d.", btn_number, max_btn_number);
 
         return EBTNNMBR;
     }
 
-    int btn_info[4] = {};
 
+    /* Generating button text */
+    const char *cur_btn_name;
+    int btn_info[4] = {};
+    int btn_txt_size[2] = {};
+    char btn_txt[PATH_MAX][PATH_MAX] = {};
+
+    // Button name checking
+    if (!strcmp(btn_name, "NEW GAME") || !strcmp(btn_name, "New game")) {
+        cur_btn_name = NEWGAME_FILE_NAME;
+    } else if (!strcmp(btn_name, "CONTINUE") || !strcmp(btn_name, "Continue")) {
+        cur_btn_name = CONTINUE_FILE_NAME;
+    } else if (!strcmp(btn_name, "SETTINGS") || !strcmp(btn_name, "Settings")) {
+        cur_btn_name = SETTINGS_FILE_NAME;
+    } else if (!strcmp(btn_name, "SAVE") || !strcmp(btn_name, "Save")) {
+        cur_btn_name = SAVE_FILE_NAME;
+    } else if (!strcmp(btn_name, "QUIT") || !strcmp(btn_name, "Quit")) {
+        cur_btn_name = QUIT_FILE_NAME;
+    } else {
+        log_warn("Button name did not recognized.");
+        cur_btn_name = ERROR_FILE_NAME;
+    }
+
+    // Button text detecting
+    FILE *fp = fopen(cur_btn_name, "r");
+    txtdtct(fp, btn_txt_size, btn_txt);
+    int close_status = fclose(fp);
+    log_trace("Button file closing status: %s.", ((close_status) ? ("FAIL") : ("SUCCESS")));
 
     // Generating button sizes
-    btn_info[BTN_SIZE_Y] = 1 + BORDER * 2;
-
-    // It's OK to use strlen, because we will not create a button
-    // with text that goes beyond the size of the int type
-    btn_info[BTN_SIZE_X] = (int)strlen(btn_name) + BORDER * 4;
-    log_info("Size of the button being created is generated: %dx%d.",
+    btn_info[BTN_SIZE_Y] = btn_txt_size[TXT_SIZE_Y] + BORDER * 2;
+    btn_info[BTN_SIZE_X] = btn_txt_size[TXT_SIZE_X] + BORDER * 2;
+    log_info("Button size is generated: %dx%d.",
              btn_info[BTN_SIZE_X], btn_info[BTN_SIZE_Y]);
-
 
     // Generating button offsets
     btn_info[BTN_OFFSET_Y] = prnt_size[PRNT_SIZE_Y] - (max_btn_number - btn_number) * (BORDER + btn_info[BTN_SIZE_Y]);
     btn_info[BTN_OFFSET_X] = (prnt_size[PRNT_SIZE_X] - btn_info[BTN_SIZE_X]) / 2;
-    log_info("Offset of the button being created are generated: %dx%d.",
+    log_info("Button offset generated: %dx%d.",
              btn_info[BTN_OFFSET_X], btn_info[BTN_OFFSET_Y]);
-
 
     // Generating button
     *btn = derwin(prnt, btn_info[BTN_SIZE_Y], btn_info[BTN_SIZE_X],
                   btn_info[BTN_OFFSET_Y], btn_info[BTN_OFFSET_X]);
     box(*btn, 0, 0);
 
+    // Inserting text
+    log_trace("Button text printing started...");
+    for (int cur_line = 0; cur_line < btn_txt_size[BTN_SIZE_Y]; cur_line++) {
+        int status = mvwprintw(*btn, btn_info[BTN_OFFSET_Y], btn_info[BTN_OFFSET_X], "%s", btn_txt[cur_line]);
+        log_trace("Printing text in button status: %s.", ((status) ? ("FAIL") : ("SUCCESS")));
+    }
+    log_trace("Button text printing ended.");
+
     log_trace("%s function ended...",  __PRETTY_FUNCTION__ );
 
     return EOK;
+}
+
+
+void txtdtct(FILE *fp, int txt_size[2], char txt[PATH_MAX][PATH_MAX]) {
+    log_trace("%s started...", __PRETTY_FUNCTION__ );
+
+    txt_size[TXT_SIZE_Y] = 0;
+    txt_size[TXT_SIZE_X] = 0;
+
+    if (fp == NULL) {
+        log_warn("Opening file failed. "
+                 "Text size generated: 0x0");
+
+        return;
+    }
+
+    int columns = 0;
+    int lines = 0;
+    int pos = 0;
+    char ch;
+
+    while ((ch = (char) fgetc(fp)) != EOF) {
+        if (ch == '\n') {
+            txt[lines++][pos] = '\0';
+            columns = pos;
+            pos = 0;
+        } else {
+            txt[lines][pos++] = (char) ch;
+        }
+    }
+
+    if (pos) {
+        txt[lines++][pos] = '\0';
+        columns = 0;
+
+        log_warn("No empty line at the end of file detected.");
+    }
+
+    txt_size[TXT_SIZE_Y] = lines;
+    txt_size[TXT_SIZE_X] = columns;
+
+    log_trace("%s ended.", __PRETTY_FUNCTION__ );
 }

@@ -15,8 +15,8 @@
 
 
 enum MIN_TERM_SIZE {
-    MIN_TERM_Y = 36,
-    MIN_TERM_X = 64,
+    MIN_TERM_Y = 48,
+    MIN_TERM_X = 86,
     MIN_TERM_AREA = MIN_TERM_Y * MIN_TERM_X
 };
 
