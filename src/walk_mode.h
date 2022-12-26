@@ -1,0 +1,4 @@
+#ifndef PROJECT_LOST_WALK_MODE_H
+#define PROJECT_LOST_WALK_MODE_H
+
+#endif
