@@ -10,7 +10,7 @@ endif()
 FILE(GLOB_RECURSE PDCURSES_SRC ${libs_pdcurses}/*.c ${CMAKE_CURRENT_SOURCE_DIR}/libs/pdcurses/pdcurses/*.c)
 FILE(GLOB_RECURSE LOG_SRC ${CMAKE_CURRENT_SOURCE_DIR}/libs/logging/*.c)
 
-add_executable(project_lost main.c ${PDCURSES_SRC} src/battle_mode.c src/battle_mode.h src/core.c src/core.h src/menu.c src/menu.h)
+add_executable(project_lost main.c ${PDCURSES_SRC} src/battle_mode.c src/battle_mode.h src/core.c src/core.h src/menu.c src/menu.h src/walk_mode.c src/walk_mode.h src/game.c src/game.h)
 #add_compile_options(-DDEBUG)
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/libs/pdcurses)

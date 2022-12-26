@@ -6,8 +6,7 @@ int main() {
         fprintf(stderr, "%s: %s: Init failed: %s\n", __FILE__, __FUNCTION__, error_mailer(result));
     }
 
-    prtymenu(4, (const char *[]) {"NEW GAME", "CONTINUE", "SETTINGS", "QUIT"});
-    getchar();
+    prty_menu(4, (const char *[]) {"NEW GAME", "CONTINUE", "SETTINGS", "QUIT"});
 
     deinit();
 

@@ -3,8 +3,11 @@
 static const char * LOG_FILE_NAME = "project_lost.log";
 
 const char *ERR_MSG[] = {
+        "Can't determine button number.",
         "No errors.",
         "Error with file working.",
+        "Title/button name did not recognized.",
+        "Terminal can't display colours.",
         "Error adding .log file.",
         "Too small terminal.",
         "Bad sequence number of the button being created.",
@@ -33,11 +36,12 @@ int init() {
     log_info("Terminal size is OK");
 
     // Working with Curses
-    log_info("Curses init started...");
+    log_trace("Curses init started...");
     initscr();
     noecho();
     cbreak();
-    log_info("Curses init ended.");
+    start_color();
+    log_trace("Curses init ended.");
 
     return EOK;
 }
@@ -51,7 +55,7 @@ void deinit() {
 
 
 int loginit() {
-    FILE *fp = fopen(LOG_FILE_NAME, "a+");
+    FILE *fp = fopen(LOG_FILE_NAME, "w+");
 
     if (fp == NULL) {
         return EFILE;
@@ -67,6 +71,30 @@ int loginit() {
 
     return EOK;
 }
+
+
+// TODO: Finish work with colours
+//enum COLOUR {
+//    PLAYER_CLR_PAIR = 1,
+//    GRASS_CLR_PAIR,
+//    STONE_CLR_PAIR,
+//    WATER_CLR_PAIR
+//};
+//
+//int colorinit() {
+//    log_trace("%s function started...", __PRETTY_FUNCTION__ );
+//
+//    if (has_colors()) {
+//        log_info("Terminal colours availible.");
+//    } else {
+//        log_warn("Terminal colours unavailible.");
+//        return ECOLOR;
+//    }
+//
+//    init_pair(PLAYER_CLR_PAIR, COLOR_);
+//
+//    log_trace("%s function ended.", __PRETTY_FUNCTION__ );
+//}
 
 
 const char * error_mailer(int err_num) {

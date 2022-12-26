@@ -21,8 +21,11 @@ enum MIN_TERM_SIZE {
 };
 
 enum ERRORS {
-    EOK,
+    ECURBTN = -1,
+    EOK = 0,
     EFILE,
+    ENAME,
+    ECOLOR,
     ELOGFP,
     ESMALLTERM,
     EBTNNMBR,
@@ -33,6 +36,7 @@ int init();
 void deinit();
 
 int loginit();
+//int colorinit();
 
 const char * error_mailer(int err_num);
 
