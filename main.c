@@ -1,14 +1,8 @@
-#include "./src/core.h"
+#include "./src/game.h"
 
 int main() {
-    int result = init();
-    if (result) {
-        fprintf(stderr, "%s: %s: Init failed: %s\n", __FILE__, __FUNCTION__, error_mailer(result));
-    }
-
-    prty_menu(4, (const char *[]) {"NEW GAME", "CONTINUE", "SETTINGS", "QUIT"});
-
-    deinit();
+    game_start();
+    game_end();
 
     return 0;
 }

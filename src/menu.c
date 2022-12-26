@@ -28,8 +28,6 @@ enum TXTSIZE {
 #define ENTER 10
 
 int prty_menu(int btns_number, const char *btns_names[]) {
-    log_trace("%s function started...", __PRETTY_FUNCTION__ );
-
     // Detecting terminal screen size
     int term_y = LINES;
     int term_x = COLS;
@@ -43,10 +41,9 @@ int prty_menu(int btns_number, const char *btns_names[]) {
     // Generating container for all menu elements
     WINDOW *menu_container = derwin(stdscr, MENU_SIZE_Y, MENU_SIZE_X, menu_offset_y, menu_offset_x);
     if (menu_container == NULL) {
-        log_error("Menu container memory allocation error.");
+        log_error("Menu container creating error.");
         goto error;
     }
-    log_info("Container for menu created succesfully.");
 
     wbkgd(menu_container, ' ');
     box(menu_container, 0, 0);
@@ -58,7 +55,7 @@ int prty_menu(int btns_number, const char *btns_names[]) {
 
     // Generating buttons array
     WINDOW **btns = calloc(btns_number, sizeof(btns[0])); // It's okay to use sizeof in this case.
-                                                      // This is a kind of automatic array data type detector!
+                                                          // This is a kind of automatic array data type detector!
     if (btns == NULL) {
         log_error("Buttons array memory allocation.");
         goto error;
@@ -70,28 +67,22 @@ int prty_menu(int btns_number, const char *btns_names[]) {
     }
 
     // Menu template ready
-    int status = refresh();
-    if (status == ERR) {
+    if (refresh() == ERR) {
         log_error("Menu window refreshing error.");
         goto error;
     }
-    log_info("Menu window refreshing success.");
 
     // Selecting button by user
     int cur_btn = 0;
-    status = box(btns[cur_btn], 0, 0);
-    if (status == ERR) {
+    if (box(btns[cur_btn], 0, 0) == ERR) {
         log_error("First button box drawing error.");
         goto error;
     }
-    log_info("First button box drawing success.");
 
-    status = wrefresh(btns[cur_btn]);
-    if (status == ERR) {
+    if (wrefresh(btns[cur_btn]) == ERR) {
         log_error("First button box refreshing error.");
         goto error;
     }
-    log_info("First button box refreshing success.");
 
     keypad(menu_container, TRUE);
     int ch = 0;
@@ -105,76 +96,62 @@ int prty_menu(int btns_number, const char *btns_names[]) {
                 log_trace("Key UP pressed.");
 
                 // "Removing" box of the current button
-                status = wborder(btns[cur_btn], ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ');
-                if (status == ERR) {
+                if (wborder(btns[cur_btn], ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ') == ERR) {
                     log_error("Current button box clearing error");
                     goto error;
                 }
-                log_info("Current button box clearing success.");
 
-                status = wrefresh(btns[cur_btn]);
-                if (status == ERR) {
+                if (wrefresh(btns[cur_btn]) == ERR) {
                     log_error("Current button box clear refreshing error");
                     goto error;
                 }
-                log_info("Current button box clear refreshing success.");
 
                 if (--cur_btn < 0) {
                     cur_btn += btns_number;
                 }
 
                 // "Drawing" box of the new button
-                status = box(btns[cur_btn], 0, 0);
-                if (status == ERR) {
+                if (box(btns[cur_btn], 0, 0) == ERR) {
                     log_error("New button box drawing error.");
                     goto error;
                 }
-                log_info("New button box drawing success.");
 
-                status = wrefresh(btns[cur_btn]);
-                if (status == ERR) {
+                if (wrefresh(btns[cur_btn]) == ERR) {
                     log_error("New button box refreshing error.");
                     goto error;
                 }
-                log_info("New button box refreshing success.");
+
                 break;
 
             case KEY_DOWN:
                 log_trace("Key DOWN pressed.");
 
                 // "Removing" box of the current button
-                status = wborder(btns[cur_btn], ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ');
-                if (status == ERR) {
+                if (wborder(btns[cur_btn], ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ') == ERR) {
                     log_error("Current button box clearing error");
                     goto error;
                 }
-                log_info("Current button box clearing success.");
 
-                status = wrefresh(btns[cur_btn]);
-                if (status == ERR) {
+                if (wrefresh(btns[cur_btn]) == ERR) {
                     log_error("Current button box clear refreshing error");
                     goto error;
                 }
-                log_info("Current button box clear refreshing success.");
 
                 if (++cur_btn >= btns_number) {
                     cur_btn -= btns_number;
                 }
 
                 // "Drawing" box of the new button
-                status = box(btns[cur_btn], 0, 0);
-                if (status == ERR) {
+                if (box(btns[cur_btn], 0, 0) == ERR) {
                     log_error("New button box drawing error.");
                     goto error;
                 }
-                log_info("New button box drawing success.");
 
-                status = wrefresh(btns[cur_btn]);
-                if (status == ERR) {
+                if (wrefresh(btns[cur_btn]) == ERR) {
                     log_error("New button box refreshing error.");
                     goto error;
                 }
-                log_info("New button box refreshing success.");
+
                 break;
 
             case ENTER:
@@ -185,15 +162,15 @@ int prty_menu(int btns_number, const char *btns_names[]) {
 
 
     end:
-    log_trace("Memory cleaning for array of buttons started...");
     free(btns);
-    log_trace("Memory cleaning for array of buttons ended.");
 
-    log_trace("%s function ended.", __PRETTY_FUNCTION__);
     return cur_btn;
 
 
-    error:
+    error: // We don't need to check function work success here,
+           // because when we alredy got an error, we just try to
+           // minimize the damage from it.
+
     wclear(title);
     delwin(title);
 
@@ -210,6 +187,8 @@ int prty_menu(int btns_number, const char *btns_names[]) {
 
     wclear(menu_container);
     delwin(menu_container);
+
+    return ECURBTN;
 }
 
 
@@ -226,8 +205,7 @@ enum TTLINFO {
 };
 
 // TODO: Replace log_info with a full-fledged check with an if-construct
-int prty_ttl(const char *ttl_name, WINDOW *ttl, WINDOW *prnt, const int prnt_size[2]) {
-    log_trace("%s function started...", __PRETTY_FUNCTION__ );
+extern int prty_ttl(const char *ttl_name, WINDOW *ttl, WINDOW *prnt, const int prnt_size[2]) {
     const char *cur_ttl_name;
     
     // Title name checking
@@ -236,7 +214,7 @@ int prty_ttl(const char *ttl_name, WINDOW *ttl, WINDOW *prnt, const int prnt_siz
     } else if (!strcmp(ttl_name, "PAUSE") || !strcmp(ttl_name, "Pause")) {
         cur_ttl_name = PAUSE_FILE_NAME;
     } else {
-        log_fatal("Title name did not recognized.");
+        log_error("Title name did not recognized.");
         return ENAME;
     }
 
@@ -246,9 +224,11 @@ int prty_ttl(const char *ttl_name, WINDOW *ttl, WINDOW *prnt, const int prnt_siz
 
     // Button text detecting
     FILE *fp = fopen(cur_ttl_name, "r");
-    txt_parse(fp, ttl_txt_size, TTL_txt);
-    int close_status = fclose(fp);
-    log_info("Title file closing status: %s.", ((close_status) ? ("FAIL") : ("SUCCESS")));
+    txt_parse(fp, ttl_txt_size, TTL_txt); // Don't worry about file opening check. We check it in txt_parse.
+    if (fclose(fp) == ERR) {
+        log_error("Title file closing error.");
+        return EFILE;
+    }
 
     // Generating button sizes
     ttl_info[TTL_SIZE_Y] = ttl_txt_size[TXT_SIZE_Y] + BORDER * 2;
@@ -266,17 +246,21 @@ int prty_ttl(const char *ttl_name, WINDOW *ttl, WINDOW *prnt, const int prnt_siz
     ttl = derwin(prnt, ttl_info[TTL_SIZE_Y], ttl_info[TTL_SIZE_X],
                   ttl_info[TTL_OFFSET_Y], ttl_info[TTL_OFFSET_X]);
 
-    // Inserting text
-    log_trace("Title text printing started...");
-    for (int cur_line = 0; cur_line < ttl_txt_size[TTL_SIZE_Y]; cur_line++) {
-        int status = mvwprintw(ttl, BORDER + cur_line, BORDER, "%s\n", TTL_txt[cur_line]);
-        log_info("Printing title text status: %s.", ((status < 0) ? ("FAIL") : ("SUCCESS")));
+    if (ttl == NULL) {
+        log_error("Title window creating error.");
+        return EWINCRT;
     }
-    log_trace("Title text printing ended.");
 
-    box(ttl, 0, 0);
+    // Inserting text
+    for (int cur_line = 0; cur_line < ttl_txt_size[TTL_SIZE_Y]; cur_line++) {
+        if (mvwprintw(ttl, BORDER + cur_line, BORDER, "%s\n", TTL_txt[cur_line]) == ERR) {
+            log_warn("Title text current line printing error.");
+        }
+    }
 
-    log_trace("%s function ended.", __PRETTY_FUNCTION__ );
+    if (box(ttl, 0, 0) == ERR) {
+        log_error("Title box painting error.");
+    }
     
     return EOK;
 }
@@ -289,13 +273,10 @@ enum BTNINFO {
     BTN_OFFSET_X
 };
 
-// TODO: Replace log_info with a full-fledged check with an if-construct
-int prty_btn(const char *btn_name, WINDOW **btn, WINDOW *prnt,
+extern int prty_btn(const char *btn_name, WINDOW **btn, WINDOW *prnt,
              const int prnt_size[2], int btn_number, int max_btn_number) {
 
-    log_trace("%s function started...", __PRETTY_FUNCTION__ );
-
-    /* Validating button current number */
+    // Validating button current number
     if (btn_number < 0 || max_btn_number < 1 || btn_number > (max_btn_number - 1)) {
         log_fatal("Number of current button is invalid."
                   " It is %d, maximum is %d.", btn_number, max_btn_number);
@@ -303,8 +284,7 @@ int prty_btn(const char *btn_name, WINDOW **btn, WINDOW *prnt,
         return EBTNNMBR;
     }
 
-
-    /* Generating button text */
+    // Generating button text
     const char *cur_btn_name;
 
     // Button name checking
@@ -319,7 +299,7 @@ int prty_btn(const char *btn_name, WINDOW **btn, WINDOW *prnt,
     } else if (!strcmp(btn_name, "QUIT") || !strcmp(btn_name, "Quit")) {
         cur_btn_name = QUIT_FILE_NAME;
     } else {
-        log_fatal("Button name did not recognized.");
+        log_error("Button %d name did not recognized.", btn_number);
         return ENAME;
     }
 
@@ -330,51 +310,47 @@ int prty_btn(const char *btn_name, WINDOW **btn, WINDOW *prnt,
     // Button text detecting
     FILE *fp = fopen(cur_btn_name, "r");
     txt_parse(fp, btn_txt_size, btn_txt);
-    int close_status = fclose(fp);
-    log_info("Button file closing status: %s.", ((close_status) ? ("FAIL") : ("SUCCESS")));
+    if (fclose(fp) == ERR) {
+        log_error("Button %d text file closing error.", btn_number);
+    }
 
     // Generating button sizes
     btn_info[BTN_SIZE_Y] = btn_txt_size[TXT_SIZE_Y] + BORDER * 2;
     btn_info[BTN_SIZE_X] = btn_txt_size[TXT_SIZE_X] + BORDER * 2;
-    log_info("Button size is generated: %dx%d.",
-             btn_info[BTN_SIZE_X], btn_info[BTN_SIZE_Y]);
+    log_info("Button %d size generated: %dx%d.", btn_number, btn_info[BTN_SIZE_X], btn_info[BTN_SIZE_Y]);
 
     // Generating button offsets
-    btn_info[BTN_OFFSET_Y] = prnt_size[PRNT_SIZE_Y] - (max_btn_number - btn_number) * (BORDER + btn_info[BTN_SIZE_Y]);
+    btn_info[BTN_OFFSET_Y] = prnt_size[PRNT_SIZE_Y] -
+                             (max_btn_number - btn_number) * (BORDER + btn_info[BTN_SIZE_Y]);
     btn_info[BTN_OFFSET_X] = (prnt_size[PRNT_SIZE_X] - btn_info[BTN_SIZE_X]) / 2;
-    log_info("Button offset generated: %dx%d.",
-             btn_info[BTN_OFFSET_X], btn_info[BTN_OFFSET_Y]);
+    log_info("Button %d offset generated: %dx%d.", btn_number, btn_info[BTN_OFFSET_X], btn_info[BTN_OFFSET_Y]);
 
     // Generating button
     *btn = derwin(prnt, btn_info[BTN_SIZE_Y], btn_info[BTN_SIZE_X],
                   btn_info[BTN_OFFSET_Y], btn_info[BTN_OFFSET_X]);
 
-    // Inserting text
-    log_trace("Button text printing started...");
-    for (int cur_line = 0; cur_line < btn_txt_size[BTN_SIZE_Y]; cur_line++) {
-        int status = mvwprintw(*btn, BORDER + cur_line, BORDER, "%s\n", btn_txt[cur_line]);
-        log_info("Printing text in button status: %s.", ((status < 0) ? ("FAIL") : ("SUCCESS")));
+    if (btn == NULL) {
+        log_error("Button %d window creating error.", btn_number);
+        return EWINCRT;
     }
-    log_trace("Button text printing ended.");
 
-//    box(*btn, 0, 0);
-
-    log_trace("%s function ended...",  __PRETTY_FUNCTION__ );
+    // Inserting text
+    for (int cur_line = 0; cur_line < btn_txt_size[BTN_SIZE_Y]; cur_line++) {
+        if (mvwprintw(*btn, BORDER + cur_line, BORDER, "%s\n", btn_txt[cur_line]) == ERR) {
+            log_warn("Button %d text current line printing error.", btn_number);
+        }
+    }
 
     return EOK;
 }
 
 
-// TODO: Replace log_info with a full-fledged check with an if-construct
-int txt_parse(FILE *fp, int txt_size[2], char txt[PATH_MAX][PATH_MAX]) {
-    log_trace("%s started...", __PRETTY_FUNCTION__ );
-
+extern int txt_parse(FILE *fp, int txt_size[2], char txt[PATH_MAX][PATH_MAX]) {
     txt_size[TXT_SIZE_Y] = 0;
     txt_size[TXT_SIZE_X] = 0;
 
     if (fp == NULL) {
-        log_fatal("Opening file failed.");
-
+        log_error("Opening file error.");
         return EFILE;
     }
 
@@ -403,8 +379,6 @@ int txt_parse(FILE *fp, int txt_size[2], char txt[PATH_MAX][PATH_MAX]) {
 
     txt_size[TXT_SIZE_Y] = lines;
     txt_size[TXT_SIZE_X] = columns;
-
-    log_trace("%s ended.", __PRETTY_FUNCTION__ );
 
     return EOK;
 }

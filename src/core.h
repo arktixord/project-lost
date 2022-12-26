@@ -1,18 +1,19 @@
 #ifndef PROJECT_LOST_CORE_H
 #define PROJECT_LOST_CORE_H
 
-#include "../libs/pdcurses/curses.h"
-#include <windows.h>
-#include <stdlib.h>
-#include <string.h>
-#include <errno.h>
-#include "menu.h"
-#include "log.h"
-
 #if !defined(FALSE) && !defined(TRUE)
     enum BOOL {FALSE, TRUE};
 #endif
 
+
+#include <windows.h>
+#include <stdlib.h>
+#include <string.h>
+#include <errno.h>
+
+#include "../libs/pdcurses/curses.h"
+#include "menu.h"
+#include "log.h"
 
 enum MIN_TERM_SIZE {
     MIN_TERM_Y = 48,
@@ -21,23 +22,32 @@ enum MIN_TERM_SIZE {
 };
 
 enum ERRORS {
-    ECURBTN = -1,
-    EOK = 0,
-    EFILE,
-    ENAME,
-    ECOLOR,
-    ELOGFP,
-    ESMALLTERM,
-    EBTNNMBR,
-    EUNKERR
+    EOK,            // No errors
+    ESCR,           // Error in screen init
+    EECHO,          // Error in echo working
+    ECBREAK,        // Error in cbreak working
+    EFILE,          // Error in working with file
+    ENAME,          // Error in title or button file name
+    ECOLOR,         // Error in terminal colour working
+    EWINCRT,        // Error in creating new curses window
+    ELOGFP,         // Error in log file working
+    ESMALLTERM,     // Error caused by small terminal size
+    EBTNNMBR,       // Error caused by invalid number of button been created
+    EUNKERR         // Unknown error
 };
 
-int init();
-void deinit();
+enum ERROR_VALUES {
+    EVALOK,
+    ECURBTN = -1,   // Error in menu working
+};
 
-int loginit();
-//int colorinit();
+extern int init();                      // Return the error code specified in core.h
+void deinit();                          // Return the error code specified in core.h
 
-const char * error_mailer(int err_num);
+extern int loginit();                   // Return the error code specified in core.h
+extern int colorinit();                 // Return the error code specified in core.h
+
+const char * error_mailer(int err_num); // Return error message from ERR_MSG array in core.c
+
 
 #endif
