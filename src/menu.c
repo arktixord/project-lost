@@ -84,6 +84,9 @@ int prty_menu(int btns_number, const char *btns_names[]) {
         goto error;
     }
 
+    // Variable responsible for definition of ERROR or OK code.
+    int success = 0;
+
     keypad(menu_container, TRUE);
     int ch = 0;
     while (1) {
@@ -156,20 +159,14 @@ int prty_menu(int btns_number, const char *btns_names[]) {
 
             case ENTER:
                 log_trace("Key ENTER pressed.");
+                success = 1;
+
                 goto end;
         }
     }
 
-
+    error:
     end:
-    free(btns);
-
-    return cur_btn;
-
-
-    error: // We don't need to check function work success here,
-           // because when we alredy got an error, we just try to
-           // minimize the damage from it.
 
     wclear(title);
     delwin(title);
@@ -187,6 +184,10 @@ int prty_menu(int btns_number, const char *btns_names[]) {
 
     wclear(menu_container);
     delwin(menu_container);
+
+    if (success) {
+        return cur_btn;
+    }
 
     return ECURBTN;
 }

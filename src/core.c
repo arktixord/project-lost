@@ -14,6 +14,7 @@ const char *ERR_MSG[] = {
         "Error creating/editing .log file",
         "The terminal is too small to display the game interface",
         "Error in the sequence number of the button being created",
+        "No ground in current game area detected",
         "Unknown error"
 };
 
@@ -64,6 +65,10 @@ extern int init() {
         return ECOLOR;
     }
 
+    if (keypad(stdscr, TRUE) == ERR) {
+        return EUNKERR;
+    }
+
     return EOK;
 }
 
@@ -105,6 +110,14 @@ extern int colorinit() {
     }
 
     return EOK;
+}
+
+
+int get_norm_height(int x, int y, int norm_diameter, float (*perlin2d) (float x, float y, float freq, int depth)) {
+    // 0.01 and 8 are the best numbers of frequency and depth for Perlin's Noise normalization.
+    float perlin_res = (*perlin2d) ((float)x, (float)y, 0.09F, 2);
+
+    return ((int)(perlin_res * norm_diameter) % norm_diameter);
 }
 
 

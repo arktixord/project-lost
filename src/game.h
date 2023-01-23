@@ -4,7 +4,8 @@
 
 #include "core.h"
 
-extern int game_start();
+int game_start();
+int game_play(int action);
 void game_end();
 
 #endif
