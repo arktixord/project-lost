@@ -34,13 +34,15 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
     add_library(pdcurses STATIC ${PDCURSES_SRC})
     include_directories(${PDCURSES_PATH})
 
-    target_link_libraries(project_lost log pdcurses heightmap)
-
     add_executable(project_lost main.c ${SRC})
+
+    target_link_libraries(project_lost log pdcurses heightmap)
 
     add_compile_options(-DOS_WINDOWS)
 
 elseif(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+    add_executable(project_lost main.c ${SRC})
+
     target_link_libraries(project_lost log heightmap)
 
     add_compile_options(-DOS_LINUX)
