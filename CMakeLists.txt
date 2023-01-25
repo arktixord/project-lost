@@ -38,7 +38,7 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
 
     target_link_libraries(project_lost log pdcurses heightmap)
 
-    add_compile_options(-DOS_WINDOWS)
+    add_compile_definitions(OS_WINDOWS)
 
 elseif(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
     add_executable(project_lost main.c ${SRC})
