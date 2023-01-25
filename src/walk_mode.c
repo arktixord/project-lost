@@ -115,6 +115,8 @@ int terrain_display(WINDOW *walking_area, int window_size_y, int window_size_x, 
     }
 
     free(map);
+
+    return EOK;
 }
 
 
@@ -231,6 +233,8 @@ int remap(WINDOW *walk_area, PLAYER *boy, MAPSQUARE *cur_square,
             break;
         }
     }
+
+    return EOK;
 }
 
 
@@ -289,8 +293,7 @@ int move_player(WINDOW *walk_area, PLAYER *boy, int offset_y, int offset_x, char
         }
 
         case 'd': {
-            int height, width;
-            getmaxyx(walk_area, height, width);
+            int height = getmaxy(walk_area);
 
             if ((boy->y + 1) >= height - offset_y) {
                 return 'd';
@@ -307,9 +310,6 @@ int move_player(WINDOW *walk_area, PLAYER *boy, int offset_y, int offset_x, char
         }
 
         case 'l': {
-            int height, width;
-            getmaxyx(walk_area, height, width);
-
             if ((boy->x - 1) < offset_x) {
                 return 'l';
             }
@@ -325,8 +325,7 @@ int move_player(WINDOW *walk_area, PLAYER *boy, int offset_y, int offset_x, char
         }
 
         case 'r': {
-            int height, width;
-            getmaxyx(walk_area, height, width);
+            int width = getmaxx(walk_area);
 
             if ((boy->x + 1) >= width - offset_x) {
                 return 'r';
