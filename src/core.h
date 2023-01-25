@@ -53,11 +53,11 @@ enum ERROR_VALUES {
     ECURBTN = -1,   // Error in menu working
 };
 
-extern int init();                      // Return the error code specified in core.h
+int init();                      // Return the error code specified in core.h
 void deinit();                          // Return the error code specified in core.h
 
-extern int loginit();                   // Return the error code specified in core.h
-extern int colorinit();                 // Return the error code specified in core.h
+int loginit();                   // Return the error code specified in core.h
+int colorinit();                 // Return the error code specified in core.h
 
 int get_norm_height(int x, int y,
                     int norm_diameter,

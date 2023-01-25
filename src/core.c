@@ -26,7 +26,7 @@ const char *ERR_VAL_MSG[] = {
 };
 
 
-extern int init() {
+int init() {
     // Working with LOGs
     loginit();
 
@@ -119,7 +119,7 @@ void deinit() {
 }
 
 
-extern int loginit() {
+int loginit() {
     FILE *fp = fopen(LOG_FILE_NAME, "w+");
     if (fp == NULL) {
         log_error("Log file creating/opening error.");
@@ -137,7 +137,7 @@ extern int loginit() {
 }
 
 
-extern int colorinit() {
+int colorinit() {
     if (has_colors() == FALSE) {
         log_warn("Terminal colours unavailible.");
         return ECOLOR;
