@@ -41,6 +41,8 @@ enum ERRORS {
     EWINCRT,        // Error in creating new curses window
     ELOGFP,         // Error in log file working
     ESMALLTERM,     // Error caused by small terminal size
+    EUNKOS,         // If OS was not defined during term size retrieval
+    ENOTSIZE,        // If OS was defined, but wasn't able to get term sized
     EBTNNMBR,       // Error caused by invalid number of button been created
     EGROUND,
     EUNKERR         // Unknown error
