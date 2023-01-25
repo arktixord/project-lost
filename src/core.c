@@ -29,12 +29,27 @@ extern int init() {
     loginit();
 
     // Checking terminal size
+    int win_term_columns = 0, win_term_rows = 0;
+#ifdef OS_WINDOWS
     CONSOLE_SCREEN_BUFFER_INFO console_scr_buf_info;
-    int win_term_columns, win_term_rows;
 
     GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &console_scr_buf_info);
     win_term_columns = console_scr_buf_info.srWindow.Right - console_scr_buf_info.srWindow.Left + 1;
     win_term_rows = console_scr_buf_info.srWindow.Bottom - console_scr_buf_info.srWindow.Top + 1;
+#endif
+
+#ifdef OS_LINUX
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <sys/ioctl.h>
+#include <errno.h>
+
+    struct winsize win;
+    ioctl(STDOUT_FILENO, TIOCGWINSZ, &win);
+    win_term_rows = win.ws_row;
+    win_term_columns = win.ws_col;
+#endif
 
     if (win_term_columns < MIN_TERM_X || win_term_rows < MIN_TERM_Y
             || win_term_columns * win_term_rows < MIN_TERM_AREA) {

@@ -38,6 +38,13 @@ int prty_menu(int btns_number, const char *btns_names[]) {
     int menu_offset_x = (term_x - MENU_SIZE_X) / 2; // stretched over the entire terminal screen
     log_info("Menu offsets generated: %dx%d.", menu_offset_x, menu_offset_y);
 
+    // Declaring buttons beforehand, so that goto doesn't use them unitialized
+    // Cricial to use before first 'goto error'
+    WINDOW **btns = NULL;
+    // success -- likewise
+    // Variable responsible for definition of ERROR or OK code.
+    int success = 0;
+
     // Generating container for all menu elements
     WINDOW *menu_container = derwin(stdscr, MENU_SIZE_Y, MENU_SIZE_X, menu_offset_y, menu_offset_x);
     if (menu_container == NULL) {
@@ -54,7 +61,7 @@ int prty_menu(int btns_number, const char *btns_names[]) {
     prty_ttl("LOST", title, menu_container, menu_size);
 
     // Generating buttons array
-    WINDOW **btns = calloc(btns_number, sizeof(btns[0])); // It's okay to use sizeof in this case.
+    btns = calloc(btns_number, sizeof(btns[0])); // It's okay to use sizeof in this case.
                                                           // This is a kind of automatic array data type detector!
     if (btns == NULL) {
         log_error("Buttons array memory allocation.");
@@ -84,8 +91,6 @@ int prty_menu(int btns_number, const char *btns_names[]) {
         goto error;
     }
 
-    // Variable responsible for definition of ERROR or OK code.
-    int success = 0;
 
     keypad(menu_container, TRUE);
     int ch = 0;
@@ -206,7 +211,7 @@ enum TTLINFO {
 };
 
 // TODO: Replace log_info with a full-fledged check with an if-construct
-extern int prty_ttl(const char *ttl_name, WINDOW *ttl, WINDOW *prnt, const int prnt_size[2]) {
+int prty_ttl(const char *ttl_name, WINDOW *ttl, WINDOW *prnt, const int prnt_size[2]) {
     const char *cur_ttl_name;
     
     // Title name checking
@@ -274,7 +279,7 @@ enum BTNINFO {
     BTN_OFFSET_X
 };
 
-extern int prty_btn(const char *btn_name, WINDOW **btn, WINDOW *prnt,
+int prty_btn(const char *btn_name, WINDOW **btn, WINDOW *prnt,
              const int prnt_size[2], int btn_number, int max_btn_number) {
 
     // Validating button current number
@@ -346,7 +351,7 @@ extern int prty_btn(const char *btn_name, WINDOW **btn, WINDOW *prnt,
 }
 
 
-extern int txt_parse(FILE *fp, int txt_size[2], char txt[PATH_MAX][PATH_MAX]) {
+int txt_parse(FILE *fp, int txt_size[2], char txt[PATH_MAX][PATH_MAX]) {
     txt_size[TXT_SIZE_Y] = 0;
     txt_size[TXT_SIZE_X] = 0;
 
