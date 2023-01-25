@@ -42,9 +42,9 @@ enum ERRORS {
     ELOGFP,         // Error in log file working
     ESMALLTERM,     // Error caused by small terminal size
     EUNKOS,         // If OS was not defined during term size retrieval
-    ENOTSIZE,        // If OS was defined, but wasn't able to get term sized
+    ENOTSIZE,       // If OS was defined, but wasn't able to get term sized
     EBTNNMBR,       // Error caused by invalid number of button been created
-    EGROUND,
+    EGROUND,        // Couldn't find place to spawn player
     EUNKERR         // Unknown error
 };
 

@@ -1,5 +1,4 @@
 #include "menu.h"
-#include "core.h"
 
 static const char *STR_SAVE = "SAVE";
 static const char *STR_QUIT = "QUIT";
@@ -81,6 +80,8 @@ int prty_menu(int btns_number, const char *btns_names[]) {
         prty_btn(btns_names[i], &btns[i], menu_container, menu_size, i, btns_number);
     }
 
+    curs_set(FALSE); // hide cursor while using menu
+
     // Menu template ready
     if (refresh() == ERR) {
         log_error("Menu window refreshing error.");
@@ -98,7 +99,6 @@ int prty_menu(int btns_number, const char *btns_names[]) {
         log_error("First button box refreshing error.");
         goto error;
     }
-
 
     keypad(menu_container, TRUE);
     int ch = 0;
@@ -180,6 +180,8 @@ int prty_menu(int btns_number, const char *btns_names[]) {
 
     error:
     end:
+
+    curs_set(TRUE); // show again on exit
 
     wclear(title);
     delwin(title);
