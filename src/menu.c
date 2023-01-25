@@ -1,15 +1,23 @@
 #include "menu.h"
 #include "core.h"
-#include <stdio.h>
 
-const char *SAVE_FILE_NAME = "../logos/SAVE.logo";
-const char *QUIT_FILE_NAME = "../logos/QUIT.logo";
-const char *BRAND_FILE_NAME = "../logos/LOST.logo";
-const char *PAUSE_FILE_NAME = "../logos/PAUSE.logo";
-const char *ERROR_FILE_NAME = "../logos/ERROR.logo";
-const char *NEWGAME_FILE_NAME = "../logos/NEWGAME.logo";
-const char *CONTINUE_FILE_NAME = "../logos/CONTINUE.logo";
-const char *SETTINGS_FILE_NAME = "../logos/SETTINGS.logo";
+static const char *STR_SAVE = "SAVE";
+static const char *STR_QUIT = "QUIT";
+static const char *STR_LOST = "LOST";
+static const char *STR_PAUSE = "PAUSE";
+static const char *STR_ERROR = "ERROR";
+static const char *STR_NEWGAME = "NEW GAME";
+static const char *STR_CONTINUE = "CONTINUE";
+static const char *STR_SETTINGS = "SETTINGS";
+
+static const char *SAVE_FILE_NAME = "../logos/SAVE.logo";
+static const char *QUIT_FILE_NAME = "../logos/QUIT.logo";
+static const char *BRAND_FILE_NAME = "../logos/LOST.logo";
+static const char *PAUSE_FILE_NAME = "../logos/PAUSE.logo";
+static const char *ERROR_FILE_NAME = "../logos/ERROR.logo";
+static const char *NEWGAME_FILE_NAME = "../logos/NEWGAME.logo";
+static const char *CONTINUE_FILE_NAME = "../logos/CONTINUE.logo";
+static const char *SETTINGS_FILE_NAME = "../logos/SETTINGS.logo";
 
 
 enum MENUSIZE {
@@ -58,7 +66,7 @@ int prty_menu(int btns_number, const char *btns_names[]) {
     // Generating title
     int menu_size[2] = {MENU_SIZE_Y, MENU_SIZE_X};
     WINDOW *title = NULL;
-    prty_ttl("LOST", title, menu_container, menu_size);
+    prty_ttl(STR_LOST, &title, menu_container, menu_size);
 
     // Generating buttons array
     btns = calloc(btns_number, sizeof(btns[0])); // It's okay to use sizeof in this case.
@@ -211,29 +219,45 @@ enum TTLINFO {
 };
 
 // TODO: Replace log_info with a full-fledged check with an if-construct
-int prty_ttl(const char *ttl_name, WINDOW *ttl, WINDOW *prnt, const int prnt_size[2]) {
-    const char *cur_ttl_name;
-    
+int prty_ttl(const char *ttl_name, WINDOW **ttl, WINDOW *prnt, const int prnt_size[2]) {
+    const char *cur_ttl_name = NULL;
+
     // Title name checking
-    if (!strcmp(ttl_name, "LOST") || !strcmp(ttl_name, "Lost")) {
+    if (!strcmp(ttl_name, STR_LOST)) {
         cur_ttl_name = BRAND_FILE_NAME;
-    } else if (!strcmp(ttl_name, "PAUSE") || !strcmp(ttl_name, "Pause")) {
+    } else if (!strcmp(ttl_name, "PAUSE")) {
         cur_ttl_name = PAUSE_FILE_NAME;
     } else {
-        log_error("Title name did not recognized.");
+        log_error("Title name was not recognized.");
         return ENAME;
     }
 
     int ttl_info[4] = {};
     int ttl_txt_size[2] = {};
-    char TTL_txt[PATH_MAX][PATH_MAX] = {};
+
+/*
+ *  char TTL_txt[PATH_MAX][PATH_MAX] = {};
+ *
+ *  This piece of art caused SEGFAULT in stackframe because on some machines
+ *  PATH_MAX might be huge [4096] and thus this matrix would take 4096*4096 = 
+ *  = 16777216 bytes = 16384 KB = 16 MB, which seems little, but is a lot AF
+ *
+ *  Recommended maxium stack occupation per use is 64 KB. Therefore, chose to
+ *  switch to 128*512 matrix, which is enough and occupies just fine
+ */
+
+    char TTL_txt[CHARMAP_MATRIX_Y][CHARMAP_MATRIX_X] = {};
 
     // Button text detecting
     FILE *fp = fopen(cur_ttl_name, "r");
-    txt_parse(fp, ttl_txt_size, TTL_txt); // Don't worry about file opening check. We check it in txt_parse.
-    if (fclose(fp) == ERR) {
-        log_error("Title file closing error.");
-        return EFILE;
+    if (fp == NULL) {
+        log_error("Can't open file [%s] for reading to get title", cur_ttl_name);
+    } else {
+        txt_parse(fp, ttl_txt_size, TTL_txt);
+        if (fclose(fp) == ERR) {
+            log_error("Title file closing error.");
+            return EFILE;
+        }
     }
 
     // Generating button sizes
@@ -249,22 +273,22 @@ int prty_ttl(const char *ttl_name, WINDOW *ttl, WINDOW *prnt, const int prnt_siz
              ttl_info[TTL_OFFSET_X], ttl_info[TTL_OFFSET_Y]);
 
     // Generating button
-    ttl = derwin(prnt, ttl_info[TTL_SIZE_Y], ttl_info[TTL_SIZE_X],
+    *ttl = derwin(prnt, ttl_info[TTL_SIZE_Y], ttl_info[TTL_SIZE_X],
                   ttl_info[TTL_OFFSET_Y], ttl_info[TTL_OFFSET_X]);
 
-    if (ttl == NULL) {
+    if (*ttl == NULL) {
         log_error("Title window creating error.");
         return EWINCRT;
     }
 
     // Inserting text
     for (int cur_line = 0; cur_line < ttl_txt_size[TTL_SIZE_Y]; cur_line++) {
-        if (mvwprintw(ttl, BORDER + cur_line, BORDER, "%s\n", TTL_txt[cur_line]) == ERR) {
+        if (mvwprintw(*ttl, BORDER + cur_line, BORDER, "%s\n", TTL_txt[cur_line]) == ERR) {
             log_warn("Title text current line printing error.");
         }
     }
 
-    if (box(ttl, 0, 0) == ERR) {
+    if (box(*ttl, 0, 0) == ERR) {
         log_error("Title box painting error.");
     }
     
@@ -294,24 +318,24 @@ int prty_btn(const char *btn_name, WINDOW **btn, WINDOW *prnt,
     const char *cur_btn_name;
 
     // Button name checking
-    if (!strcmp(btn_name, "NEW GAME") || !strcmp(btn_name, "New game")) {
+    if (!strcmp(btn_name, STR_NEWGAME)) {
         cur_btn_name = NEWGAME_FILE_NAME;
-    } else if (!strcmp(btn_name, "CONTINUE") || !strcmp(btn_name, "Continue")) {
+    } else if (!strcmp(btn_name, STR_CONTINUE)) {
         cur_btn_name = CONTINUE_FILE_NAME;
-    } else if (!strcmp(btn_name, "SETTINGS") || !strcmp(btn_name, "Settings")) {
+    } else if (!strcmp(btn_name, STR_SETTINGS)) {
         cur_btn_name = SETTINGS_FILE_NAME;
-    } else if (!strcmp(btn_name, "SAVE") || !strcmp(btn_name, "Save")) {
+    } else if (!strcmp(btn_name, STR_SAVE)) {
         cur_btn_name = SAVE_FILE_NAME;
-    } else if (!strcmp(btn_name, "QUIT") || !strcmp(btn_name, "Quit")) {
+    } else if (!strcmp(btn_name, STR_QUIT)) {
         cur_btn_name = QUIT_FILE_NAME;
     } else {
-        log_error("Button %d name did not recognized.", btn_number);
+        log_error("Button %d name was not recognized.", btn_number);
         return ENAME;
     }
 
     int btn_info[4] = {};
     int btn_txt_size[2] = {};
-    char btn_txt[PATH_MAX][PATH_MAX] = {};
+    char btn_txt[CHARMAP_MATRIX_Y][CHARMAP_MATRIX_X] = {};
 
     // Button text detecting
     FILE *fp = fopen(cur_btn_name, "r");
@@ -351,7 +375,7 @@ int prty_btn(const char *btn_name, WINDOW **btn, WINDOW *prnt,
 }
 
 
-int txt_parse(FILE *fp, int txt_size[2], char txt[PATH_MAX][PATH_MAX]) {
+int txt_parse(FILE *fp, int txt_size[2], char txt[CHARMAP_MATRIX_Y][CHARMAP_MATRIX_X]) {
     txt_size[TXT_SIZE_Y] = 0;
     txt_size[TXT_SIZE_X] = 0;
 

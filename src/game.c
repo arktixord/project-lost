@@ -8,9 +8,11 @@ int game_start() {
         return status;
     }
 
-    int action;
-    if ((action = prty_menu(2, (const char *[]) {"NEW GAME", "QUIT"})) == ECURBTN) {
-        fprintf(stderr, "Start menu work error.\n");
+    int action = prty_menu(2, (const char *[]) {"NEW GAME", "QUIT"});
+    if (action == ECURBTN) {
+        // is useless, as curses already have control, nothing will be printed
+        // fprintf(stderr, "Start menu work error.\n"); // to be removed
+        log_fatal("Can't get action. Didn't get to play T_T");
         return ECURBTN;
     }
     log_info("Button %d selected.", action);
