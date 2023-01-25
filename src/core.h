@@ -5,13 +5,20 @@
     enum BOOL {FALSE, TRUE};
 #endif
 
-
+#ifdef OS_WINDOWS
 #include <windows.h>
+#include "../libs/pdcurses/curses.h"
+#endif
+
+#ifdef OS_LINUX
+#include <limits.h> // for PATH_MAX
+#include <curses.h>
+#endif
+
 #include <stdlib.h>
 #include <string.h>
 #include <errno.h>
 
-#include "../libs/pdcurses/curses.h"
 #include "../libs/heightmap/height_map.h"
 #include "walk_mode.h"
 #include "menu.h"
